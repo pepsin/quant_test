@@ -75,7 +75,7 @@ def initialize(context):
         ),
         type="fund",
     )
-    set_benchmark("161226.XSHE")
+    set_benchmark("513100.XSHG")
     log.set_level('order', 'error')
     log.set_level('system', 'error')
     log.set_level('strategy', 'debug')
@@ -163,8 +163,15 @@ def initialize(context):
 
     # ---------- 短期动量过滤 ----------
     g.use_short_momentum_filter = True
-    g.short_lookback_days = 10
+    g.short_lookback_days = 10  # 默认回退值
     g.short_momentum_threshold = 0.0
+
+    # ---------- 短期动量波动率自适应 ----------
+    g.short_volatility_high = 0.40      # 高于此值视为高波动
+    g.short_volatility_low = 0.20       # 低于此值视为低波动
+    g.short_lookback_high_vol = 10      # 高波动品种短期回看天数
+    g.short_lookback_mid_vol = 15       # 中波动品种短期回看天数
+    g.short_lookback_low_vol = 35       # 低波动品种短期回看天数（如纳指、国债）
 
     # ---------- 溢价率过滤 ----------
     g.enable_premium_filter = True  # 是否启用溢价率过滤
@@ -768,7 +775,8 @@ def calculate_momentum_metrics(context, etf):
     try:
         name = get_name(etf)
         # 获取足够历史数据
-        lookback = max(g.lookback_days, g.short_lookback_days) + 20
+        max_short_lb = max(g.short_lookback_high_vol, g.short_lookback_mid_vol, g.short_lookback_low_vol)
+        lookback = max(g.lookback_days, g.short_lookback_days, max_short_lb) + 30
         prices = attribute_history(etf, lookback, '1d', ['close', 'high'])
         if len(prices) < g.lookback_days:
             log.debug(f"{etf} {name} 历史数据不足{len(prices)}天，跳过")
@@ -806,15 +814,34 @@ def calculate_momentum_metrics(context, etf):
                         f"📉 {etf} {name} 成交量放量{vol_ratio:.1f}倍，且年化{annualized * 100:.1f}% > 阈值{g.volume_return_limit * 100:.1f}%，过滤")
                     return None
 
-        # ===== 4. 短期动量过滤（排除） =====
-        if len(price_series) >= g.short_lookback_days + 1:
-            short_return = price_series[-1] / price_series[-(g.short_lookback_days + 1)] - 1
-            short_annualized = (1 + short_return) ** (250 / g.short_lookback_days) - 1
+        # ===== 4. 短期动量过滤（排除）=====
+        # 根据波动率动态选择回看天数
+        vol_window = min(30, len(price_series) - 1)
+        if vol_window >= 5:
+            vol_returns = np.diff(np.log(price_series[-(vol_window + 1):]))
+            volatility = np.std(vol_returns) * np.sqrt(250)
+            if volatility > g.short_volatility_high:
+                dynamic_short_lb = g.short_lookback_high_vol
+                vol_tag = '高波'
+            elif volatility < g.short_volatility_low:
+                dynamic_short_lb = g.short_lookback_low_vol
+                vol_tag = '低波'
+            else:
+                dynamic_short_lb = g.short_lookback_mid_vol
+                vol_tag = '中波'
+        else:
+            dynamic_short_lb = g.short_lookback_days
+            volatility = 0
+            vol_tag = '默认'
+
+        if len(price_series) >= dynamic_short_lb + 1:
+            short_return = price_series[-1] / price_series[-(dynamic_short_lb + 1)] - 1
+            short_annualized = (1 + short_return) ** (250 / dynamic_short_lb) - 1
         else:
             short_annualized = 0
 
         if g.use_short_momentum_filter and short_annualized < g.short_momentum_threshold:
-            log.debug(f"{etf} {name} 短期动量{short_annualized * 100:.1f}% < 阈值{g.short_momentum_threshold * 100:.1f}%，过滤")
+            log.debug(f"{etf} {name} [{vol_tag}]短期动量{short_annualized * 100:.1f}%({dynamic_short_lb}天) < 阈值{g.short_momentum_threshold * 100:.1f}%，过滤")
             return None
 
         # ===== 5. 长期动量计算（得分） =====
