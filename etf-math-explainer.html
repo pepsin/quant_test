@@ -308,6 +308,86 @@
   .signal-warn { background: rgba(210,153,34,.2); color: var(--yellow); border: 1px solid var(--yellow); }
   hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
   .weight-chart-wrap { margin-top: 12px; }
+
+  /* ── Price Editor ── */
+  #price-editor {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 48px;
+  }
+  .price-editor-header {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 20px; padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .price-editor-header h3 {
+    font-size: 15px; font-weight: 700; color: var(--heading);
+  }
+  .price-editor-header p { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .editor-icon {
+    width: 36px; height: 36px; background: rgba(88,166,255,.15);
+    border-radius: 8px; display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+  /* Presets */
+  .preset-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; align-items: center; }
+  .preset-row label { font-size: 12px; color: var(--muted); font-weight: 600; min-width: 56px; }
+  .preset-btn {
+    padding: 5px 14px; border-radius: 20px; border: 1px solid var(--border);
+    background: var(--surface2); color: var(--muted); font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: all .15s;
+  }
+  .preset-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .preset-btn.active { background: rgba(88,166,255,.15); border-color: var(--accent); color: var(--accent); }
+  /* Style pills */
+  .style-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; align-items: center; }
+  .style-row label { font-size: 12px; color: var(--muted); font-weight: 600; min-width: 56px; }
+  .style-pill {
+    padding: 4px 14px; border-radius: 20px; border: 1px solid var(--border);
+    background: var(--surface2); color: var(--muted); font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: all .15s;
+  }
+  .style-pill:hover { border-color: var(--purple); color: var(--purple); }
+  .style-pill.active { background: rgba(188,140,255,.15); border-color: var(--purple); color: var(--purple); }
+  /* Segments grid */
+  .seg-row-header {
+    display: grid; grid-template-columns: 28px 1fr 1fr 1fr 32px; gap: 10px;
+    padding: 0 6px; margin-bottom: 4px;
+  }
+  .seg-row-header span { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+  .seg-row {
+    display: grid; grid-template-columns: 28px 1fr 1fr 1fr 32px; gap: 10px;
+    align-items: center; margin-bottom: 8px; padding: 10px 6px;
+    border-radius: 8px; background: var(--surface2); border: 1px solid var(--border);
+    transition: border-color .15s;
+  }
+  .seg-row:hover { border-color: rgba(88,166,255,.3); }
+  .seg-color { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; }
+  .seg-ctrl { display: flex; flex-direction: column; gap: 3px; }
+  .seg-ctrl label { font-size: 11px; color: var(--muted); display: flex; justify-content: space-between; }
+  .seg-ctrl label span { color: var(--accent); font-family: monospace; }
+  .seg-del {
+    width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--border);
+    background: transparent; color: var(--muted); cursor: pointer; font-size: 14px;
+    display: flex; align-items: center; justify-content: center; transition: all .15s;
+  }
+  .seg-del:hover { background: rgba(248,81,73,.15); border-color: var(--red); color: var(--red); }
+  .add-seg-btn {
+    margin-top: 6px; padding: 6px 16px; border-radius: 6px;
+    border: 1px dashed var(--border); background: transparent;
+    color: var(--muted); font-size: 12px; cursor: pointer; transition: all .15s;
+  }
+  .add-seg-btn:hover { border-color: var(--green); color: var(--green); }
+  /* Seed ctrl */
+  .seed-row { display: flex; align-items: center; gap: 16px; margin-top: 14px; }
+  .seed-row label { font-size: 12px; color: var(--muted); font-weight: 600; white-space: nowrap; }
+  .seed-row input[type=range] { flex: 1; }
+  .seed-val { font-family: monospace; font-size: 13px; color: var(--accent); min-width: 30px; }
+  /* Preview */
+  .preview-wrap { margin-top: 16px; position: relative; }
+  .preview-wrap canvas { max-width: 100%; }
 </style>
 </head>
 <body>
@@ -320,6 +400,7 @@
   </div>
   <nav>
     <a href="#s0" class="active"><span class="nav-num">✦</span>总览</a>
+    <a href="#price-editor"><span class="nav-num">✎</span>价格序列</a>
     <a href="#s1"><span class="nav-num">1</span>移动平均 MA</a>
     <a href="#s2"><span class="nav-num">2</span>乖离率 Bias</a>
     <a href="#s3"><span class="nav-num">3</span>RSI</a>
@@ -361,6 +442,60 @@
       <tr><td>11</td><td><a href="#s11">溢价率</a></td><td>ETF 场内价格 vs 净值，过高则排除</td><td><span class="tag tag-risk">风控</span></td></tr>
     </tbody>
   </table>
+</section>
+
+<!-- ══════════════════════════════════════════════ Price Editor -->
+<section id="price-editor">
+  <div class="price-editor-header">
+    <div class="editor-icon">📈</div>
+    <div>
+      <h3>全局价格序列编辑器</h3>
+      <p>调整后，所有下方章节的演示图表将同步更新</p>
+    </div>
+  </div>
+
+  <!-- Presets -->
+  <div class="preset-row">
+    <label>形态</label>
+    <button class="preset-btn active" data-preset="bull">📈 上涨</button>
+    <button class="preset-btn" data-preset="bear">📉 下跌</button>
+    <button class="preset-btn" data-preset="sideways">➡️ 震荡</button>
+    <button class="preset-btn" data-preset="vshape">🔡 V形反转</button>
+    <button class="preset-btn" data-preset="peaked">🔔 先涨后跌</button>
+    <button class="preset-btn" data-preset="wbottom">〽️ W底</button>
+  </div>
+
+  <!-- Style pills -->
+  <div class="style-row">
+    <label>风格</label>
+    <button class="style-pill active" data-style="normal">普通</button>
+    <button class="style-pill" data-style="smooth">平滑</button>
+    <button class="style-pill" data-style="jumpy">跳跃</button>
+  </div>
+
+  <!-- Segment editor -->
+  <div class="seg-row-header">
+    <span></span>
+    <span>趋势 (日均%)</span>
+    <span>波动率 (%)</span>
+    <span>天数</span>
+    <span></span>
+  </div>
+  <div id="seg-list"></div>
+  <button class="add-seg-btn" id="add-seg-btn">＋ 添加段</button>
+
+  <!-- Seed -->
+  <div class="seed-row">
+    <label>随机种子</label>
+    <input type="range" id="price-seed" min="1" max="200" step="1" value="42">
+    <span class="seed-val" id="price-seed-val">42</span>
+  </div>
+
+  <!-- Preview chart -->
+  <div class="preview-wrap">
+    <div style="font-size:11px;color:var(--muted);margin-bottom:6px">预览（不同颜色代表不同段）</div>
+    <canvas id="chart-price-editor" height="140"></canvas>
+  </div>
 </section>
 
 <!-- ══════════════════════════════════════════════ §1 MA -->
@@ -879,18 +1014,20 @@ function mulberry32(seed) {
   };
 }
 
-function generatePrices(n, seed, segments) {
+// styleMultiplier: normal=1, smooth=0.4, jumpy=2.5
+function generatePricesFromSegs(segments, seed, styleVolMul) {
+  const mul = styleVolMul ?? 1;
+  let total = segments.reduce((s,sg)=>s+sg.days,0);
   const rng = mulberry32(seed);
   const prices = [100];
-  for (let i = 1; i < n; i++) {
-    let seg = segments[segments.length - 1];
-    for (const s of segments) {
-      if (i <= s.end) { seg = s; break; }
+  let day = 1;
+  for (const seg of segments) {
+    for (let i = 0; i < seg.days; i++, day++) {
+      const drift = seg.trend;
+      const vol   = seg.vol * mul;
+      const r = drift + vol * (rng() * 2 - 1);
+      prices.push(Math.max(prices[prices.length-1] * (1 + r), 1));
     }
-    const drift = seg.trend;
-    const vol = seg.vol;
-    const r = drift + vol * (rng() * 2 - 1) * Math.sqrt(1);
-    prices.push(Math.max(prices[i-1] * (1 + r), 1));
   }
   return prices;
 }
@@ -945,7 +1082,7 @@ function gaussianFilter(prices, sigma) {
     const m = slice.length;
     const weights = new Array(m);
     for (let k = 0; k < m; k++) {
-      const dist = m - k; // distance from newest (1 = newest)
+      const dist = m - k;
       weights[k] = Math.exp(-(dist * dist) / (2 * sigma * sigma));
     }
     const wSum = weights.reduce((a,b)=>a+b, 0);
@@ -994,35 +1131,192 @@ function linspace(a, b, n) {
 function fmt2(v) { return isNaN(v) ? '—' : v.toFixed(2); }
 function fmtPct(v) { return isNaN(v) ? '—' : (v*100).toFixed(1)+'%'; }
 
-// ════════════════════════════════════════
-// Shared price data
-// ════════════════════════════════════════
-// Price A: gentle uptrend with a mid-period pullback  (for MA, Bias, RSI)
-const pricesA = generatePrices(120, 42, [
-  {end:40,  trend:0.003, vol:0.008},
-  {end:60,  trend:-0.005, vol:0.012},
-  {end:90,  trend:0.004, vol:0.007},
-  {end:120, trend:0.002, vol:0.009},
-]);
-// Price B: strong trend  (for Laplace, Gaussian)
-const pricesB = generatePrices(100, 99, [
-  {end:30, trend:0.004, vol:0.006},
-  {end:55, trend:-0.002, vol:0.015},
-  {end:80, trend:0.005, vol:0.007},
-  {end:100,trend:0.003, vol:0.009},
-]);
-// Price C: moderate trend for regression (for WLS, R², Ann)
-const pricesC = generatePrices(80, 7, [
-  {end:80, trend:0.003, vol:0.006},
-]);
-// Price D: drawdown scenario
-const pricesD = generatePrices(100, 5, [
-  {end:50, trend:0.005, vol:0.007},
-  {end:70, trend:-0.008, vol:0.012},
-  {end:100,trend:0.003, vol:0.008},
-]);
-
 const labels = (n) => Array.from({length:n}, (_,i)=>`D${i+1}`);
+
+// ════════════════════════════════════════
+// ── Price Editor State ────────────────
+// ════════════════════════════════════════
+const SEG_COLORS = ['#58a6ff','#3fb950','#d29922','#bc8cff','#f85149'];
+
+const PRESETS = {
+  bull:    [{trend:0.003,vol:0.008,days:40},{trend:0.005,vol:0.006,days:40},{trend:0.002,vol:0.007,days:40}],
+  bear:    [{trend:-0.004,vol:0.009,days:40},{trend:-0.006,vol:0.011,days:40},{trend:-0.002,vol:0.008,days:40}],
+  sideways:[{trend:0.001,vol:0.012,days:40},{trend:-0.001,vol:0.013,days:40},{trend:0.0,vol:0.011,days:40}],
+  vshape:  [{trend:-0.007,vol:0.010,days:45},{trend:0.008,vol:0.008,days:45},{trend:0.003,vol:0.007,days:30}],
+  peaked:  [{trend:0.005,vol:0.007,days:40},{trend:0.008,vol:0.006,days:25},{trend:-0.006,vol:0.010,days:55}],
+  wbottom: [{trend:-0.005,vol:0.010,days:25},{trend:0.004,vol:0.008,days:25},{trend:-0.004,vol:0.009,days:20},{trend:0.006,vol:0.007,days:50}],
+};
+const STYLE_VOL = { normal: 1.0, smooth: 0.35, jumpy: 2.6 };
+
+let editorState = {
+  segments: PRESETS.bull.map(s=>({...s})),
+  style: 'normal',
+  seed: 42,
+  activePreset: 'bull',
+};
+
+// The live global price series used by ALL sections
+let globalPrices = [];
+
+function buildGlobalPrices() {
+  globalPrices = generatePricesFromSegs(
+    editorState.segments,
+    editorState.seed,
+    STYLE_VOL[editorState.style]
+  );
+}
+
+// ── Editor UI helpers ─────────────────
+function renderSegList() {
+  const list = document.getElementById('seg-list');
+  list.innerHTML = '';
+  editorState.segments.forEach((seg, idx) => {
+    const row = document.createElement('div');
+    row.className = 'seg-row';
+    const col = SEG_COLORS[idx % SEG_COLORS.length];
+    row.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:center">
+        <div class="seg-color" style="background:${col}"></div>
+      </div>
+      <div class="seg-ctrl">
+        <label>趋势 <span id="seg-trend-val-${idx}">${(seg.trend*100).toFixed(2)}%</span></label>
+        <input type="range" id="seg-trend-${idx}" min="-1.5" max="1.5" step="0.05"
+          value="${(seg.trend*100).toFixed(2)}" style="width:100%">
+      </div>
+      <div class="seg-ctrl">
+        <label>波动 <span id="seg-vol-val-${idx}">${(seg.vol*100).toFixed(2)}%</span></label>
+        <input type="range" id="seg-vol-${idx}" min="0.1" max="3.0" step="0.05"
+          value="${(seg.vol*100).toFixed(2)}" style="width:100%">
+      </div>
+      <div class="seg-ctrl">
+        <label>天数 <span id="seg-days-val-${idx}">${seg.days}</span></label>
+        <input type="range" id="seg-days-${idx}" min="5" max="120" step="1"
+          value="${seg.days}" style="width:100%">
+      </div>
+      <button class="seg-del" data-idx="${idx}" title="删除此段">✕</button>
+    `;
+    list.appendChild(row);
+
+    // Bind events
+    row.querySelector(`#seg-trend-${idx}`).addEventListener('input', e => {
+      editorState.segments[idx].trend = parseFloat(e.target.value)/100;
+      document.getElementById(`seg-trend-val-${idx}`).textContent = parseFloat(e.target.value).toFixed(2)+'%';
+      onEditorChange();
+    });
+    row.querySelector(`#seg-vol-${idx}`).addEventListener('input', e => {
+      editorState.segments[idx].vol = parseFloat(e.target.value)/100;
+      document.getElementById(`seg-vol-val-${idx}`).textContent = parseFloat(e.target.value).toFixed(2)+'%';
+      onEditorChange();
+    });
+    row.querySelector(`#seg-days-${idx}`).addEventListener('input', e => {
+      editorState.segments[idx].days = parseInt(e.target.value);
+      document.getElementById(`seg-days-val-${idx}`).textContent = e.target.value;
+      onEditorChange();
+    });
+    row.querySelector('.seg-del').addEventListener('click', e => {
+      const i = parseInt(e.currentTarget.dataset.idx);
+      if (editorState.segments.length <= 1) return;
+      editorState.segments.splice(i, 1);
+      renderSegList();
+      onEditorChange();
+    });
+  });
+}
+
+function applyPreset(key) {
+  editorState.activePreset = key;
+  editorState.segments = PRESETS[key].map(s=>({...s}));
+  document.querySelectorAll('.preset-btn').forEach(b=>b.classList.toggle('active', b.dataset.preset===key));
+  renderSegList();
+  onEditorChange();
+}
+
+// Preview chart
+let chartEditor;
+function buildEditorChart() {
+  const ctx = document.getElementById('chart-price-editor').getContext('2d');
+  chartEditor = new Chart(ctx, {
+    type: 'line',
+    data: { labels: [], datasets: [] },
+    options: {
+      animation: false,
+      plugins: { legend: { display: false }, tooltip: { enabled: false } },
+      scales: { x: { ticks: { maxTicksLimit: 12 } }, y: {} },
+    }
+  });
+}
+
+function updateEditorChart() {
+  const prices = globalPrices;
+  const n = prices.length;
+  // Build coloured per-segment datasets
+  const datasets = [];
+  let offset = 0;
+  for (let si = 0; si < editorState.segments.length; si++) {
+    const seg = editorState.segments[si];
+    const col = SEG_COLORS[si % SEG_COLORS.length];
+    const segData = new Array(n).fill(null);
+    // overlap by 1 to connect segments
+    const start = Math.max(0, offset - 1);
+    const end   = Math.min(n - 1, offset + seg.days);
+    for (let i = start; i <= end; i++) segData[i] = prices[i];
+    datasets.push({
+      data: segData,
+      borderColor: col,
+      borderWidth: 2,
+      pointRadius: 0,
+      tension: 0.25,
+      spanGaps: false,
+    });
+    offset += seg.days;
+  }
+  chartEditor.data.labels = labels(n);
+  chartEditor.data.datasets = datasets;
+  chartEditor.update('none');
+}
+
+// Master refresh — rebuilds prices + updates all section charts
+function onEditorChange() {
+  buildGlobalPrices();
+  updateEditorChart();
+  if (chartMA)         refreshMA();
+  if (chartBiasPrice)  refreshBias();
+  if (chartRSIPrice)   refreshRSI();
+  if (chartLaplace)    refreshLaplace();
+  if (chartGaussPrice) refreshGauss();
+  if (chartWLS)        refreshWLS();
+  if (chartAnn)        refreshAnn();
+  if (chartDD)         refreshDD();
+}
+
+// Wire preset buttons
+document.querySelectorAll('.preset-btn').forEach(btn => {
+  btn.addEventListener('click', () => applyPreset(btn.dataset.preset));
+});
+
+// Wire style pills
+document.querySelectorAll('.style-pill').forEach(pill => {
+  pill.addEventListener('click', () => {
+    editorState.style = pill.dataset.style;
+    document.querySelectorAll('.style-pill').forEach(p=>p.classList.toggle('active',p===pill));
+    onEditorChange();
+  });
+});
+
+// Wire add segment
+document.getElementById('add-seg-btn').addEventListener('click', () => {
+  if (editorState.segments.length >= 5) return;
+  editorState.segments.push({ trend: 0.002, vol: 0.008, days: 30 });
+  renderSegList();
+  onEditorChange();
+});
+
+// Wire seed slider
+document.getElementById('price-seed').addEventListener('input', e => {
+  editorState.seed = parseInt(e.target.value);
+  document.getElementById('price-seed-val').textContent = e.target.value;
+  onEditorChange();
+});
 
 // ════════════════════════════════════════
 // §1 MA Chart
@@ -1032,21 +1326,23 @@ function buildMAChart() {
   const ctx = document.getElementById('chart-ma').getContext('2d');
   chartMA = new Chart(ctx, {
     type:'line',
-    data:{ labels: labels(pricesA.length), datasets:[
-      { label:'价格', data: pricesA, borderColor:'#8b949e', borderWidth:1.5, pointRadius:0, tension:0.3 },
-      { label:'MA', data: [], borderColor:'#bc8cff', borderWidth:2, pointRadius:0, borderDash:[4,3], tension:0.3 },
+    data:{ labels: [], datasets:[
+      { label:'价格', data: [], borderColor:'#8b949e', borderWidth:1.5, pointRadius:0, tension:0.3 },
+      { label:'MA',  data: [], borderColor:'#bc8cff', borderWidth:2, pointRadius:0, borderDash:[4,3], tension:0.3 },
     ]},
     options:{ animation:false, plugins:{legend:{display:true, labels:{color:'#8b949e',boxWidth:12}}},
       scales:{ x:{ticks:{maxTicksLimit:10}}, y:{} } }
   });
 }
-function updateMA() {
+function refreshMA() {
   const n = +document.getElementById('ma-period').value;
-  document.getElementById('ma-period-val').textContent = n;
-  const ma = calcMA(pricesA, n);
+  const prices = globalPrices;
+  const ma = calcMA(prices, n);
+  chartMA.data.labels = labels(prices.length);
+  chartMA.data.datasets[0].data = prices;
   chartMA.data.datasets[1].data = ma;
   chartMA.update('none');
-  const last = pricesA[pricesA.length-1];
+  const last = prices[prices.length-1];
   const lastMA = ma[ma.length-1];
   document.getElementById('ma-price').textContent = last.toFixed(2);
   document.getElementById('ma-val').textContent = isNaN(lastMA)?'—':lastMA.toFixed(2);
@@ -1054,6 +1350,11 @@ function updateMA() {
   const el = document.getElementById('ma-above');
   el.textContent = above ? '✓ 是' : '✗ 否';
   el.className = 'stat-value ' + (above?'green':'red');
+}
+function updateMA() {
+  const n = +document.getElementById('ma-period').value;
+  document.getElementById('ma-period-val').textContent = n;
+  refreshMA();
 }
 document.getElementById('ma-period').addEventListener('input', updateMA);
 
@@ -1065,8 +1366,8 @@ function buildBiasCharts() {
   const ctx1 = document.getElementById('chart-bias-price').getContext('2d');
   chartBiasPrice = new Chart(ctx1, {
     type:'line',
-    data:{labels: labels(pricesA.length), datasets:[
-      {label:'价格', data:pricesA, borderColor:'#58a6ff', borderWidth:1.5, pointRadius:0, tension:0.3},
+    data:{labels: [], datasets:[
+      {label:'价格', data:[], borderColor:'#58a6ff', borderWidth:1.5, pointRadius:0, tension:0.3},
       {label:'MA',  data:[], borderColor:'#bc8cff', borderWidth:2, pointRadius:0, borderDash:[4,3], tension:0.3},
     ]},
     options:{animation:false, plugins:{legend:{display:true,labels:{color:'#8b949e',boxWidth:12}}},
@@ -1075,7 +1376,7 @@ function buildBiasCharts() {
   const ctx2 = document.getElementById('chart-bias-rate').getContext('2d');
   chartBiasRate = new Chart(ctx2, {
     type:'line',
-    data:{labels: labels(pricesA.length), datasets:[
+    data:{labels: [], datasets:[
       {label:'乖离率', data:[], borderColor:'#d29922', borderWidth:2, pointRadius:0, tension:0.3, fill:true,
        backgroundColor:'rgba(210,153,34,0.12)'},
       {label:'阈值+', data:[], borderColor:'#f85149', borderWidth:1, pointRadius:0, borderDash:[3,3]},
@@ -1085,18 +1386,21 @@ function buildBiasCharts() {
       scales:{x:{ticks:{maxTicksLimit:10}}, y:{ticks:{callback:v=>(v*100).toFixed(0)+'%'}}}}
   });
 }
-function updateBias() {
+function refreshBias() {
+  const prices = globalPrices;
   const n = +document.getElementById('bias-period').value;
   const thresh = +document.getElementById('bias-thresh').value / 100;
-  document.getElementById('bias-period-val').textContent = n;
-  document.getElementById('bias-thresh-val').textContent = (+document.getElementById('bias-thresh').value)+'%';
-  const ma = calcMA(pricesA, n);
-  const bias = pricesA.map((p,i) => isNaN(ma[i]) ? NaN : (p - ma[i]) / ma[i]);
+  const ma = calcMA(prices, n);
+  const bias = prices.map((p,i) => isNaN(ma[i]) ? NaN : (p - ma[i]) / ma[i]);
+  const L = labels(prices.length);
+  chartBiasPrice.data.labels = L;
+  chartBiasPrice.data.datasets[0].data = prices;
   chartBiasPrice.data.datasets[1].data = ma;
   chartBiasPrice.update('none');
+  chartBiasRate.data.labels = L;
   chartBiasRate.data.datasets[0].data = bias;
-  chartBiasRate.data.datasets[1].data = new Array(pricesA.length).fill(thresh);
-  chartBiasRate.data.datasets[2].data = new Array(pricesA.length).fill(-thresh);
+  chartBiasRate.data.datasets[1].data = new Array(prices.length).fill(thresh);
+  chartBiasRate.data.datasets[2].data = new Array(prices.length).fill(-thresh);
   chartBiasRate.update('none');
   const lastMA = ma[ma.length-1];
   const lastBias = bias[bias.length-1];
@@ -1108,6 +1412,13 @@ function updateBias() {
   const trigEl = document.getElementById('bias-trigger');
   trigEl.innerHTML = trig ? '<span class="signal-badge signal-pass">⚡ 触发</span>' : '<span class="signal-badge signal-fail">○ 未触发</span>';
 }
+function updateBias() {
+  const n = +document.getElementById('bias-period').value;
+  const thresh = +document.getElementById('bias-thresh').value;
+  document.getElementById('bias-period-val').textContent = n;
+  document.getElementById('bias-thresh-val').textContent = thresh+'%';
+  refreshBias();
+}
 ['bias-period','bias-thresh'].forEach(id=>document.getElementById(id).addEventListener('input',updateBias));
 
 // ════════════════════════════════════════
@@ -1118,15 +1429,15 @@ function buildRSICharts() {
   const ctx1 = document.getElementById('chart-rsi-price').getContext('2d');
   chartRSIPrice = new Chart(ctx1, {
     type:'line',
-    data:{labels: labels(pricesA.length), datasets:[
-      {data:pricesA, borderColor:'#58a6ff', borderWidth:1.5, pointRadius:0, tension:0.3},
+    data:{labels: [], datasets:[
+      {data:[], borderColor:'#58a6ff', borderWidth:1.5, pointRadius:0, tension:0.3},
     ]},
     options:{animation:false, scales:{x:{ticks:{maxTicksLimit:10}},y:{}}}
   });
   const ctx2 = document.getElementById('chart-rsi').getContext('2d');
   chartRSI = new Chart(ctx2, {
     type:'line',
-    data:{labels: labels(pricesA.length), datasets:[
+    data:{labels: [], datasets:[
       {label:'RSI', data:[], borderColor:'#d29922', borderWidth:2, pointRadius:0, tension:0.3},
       {label:'超买线', data:[], borderColor:'#f85149', borderWidth:1, borderDash:[4,3], pointRadius:0},
       {label:'回落线', data:[], borderColor:'#3fb950', borderWidth:1, borderDash:[4,3], pointRadius:0},
@@ -1136,17 +1447,20 @@ function buildRSICharts() {
       scales:{x:{ticks:{maxTicksLimit:10}}, y:{min:0, max:100}}}
   });
 }
-function updateRSI() {
+function refreshRSI() {
+  const prices = globalPrices;
   const period = +document.getElementById('rsi-period').value;
   const ob = +document.getElementById('rsi-ob').value;
   const pb = +document.getElementById('rsi-pb').value;
-  document.getElementById('rsi-period-val').textContent = period;
-  document.getElementById('rsi-ob-val').textContent = ob;
-  document.getElementById('rsi-pb-val').textContent = pb;
-  const rsi = calcRSI(pricesA, period);
+  const rsi = calcRSI(prices, period);
+  const L = labels(prices.length);
+  chartRSIPrice.data.labels = L;
+  chartRSIPrice.data.datasets[0].data = prices;
+  chartRSIPrice.update('none');
+  chartRSI.data.labels = L;
   chartRSI.data.datasets[0].data = rsi;
-  chartRSI.data.datasets[1].data = new Array(pricesA.length).fill(ob);
-  chartRSI.data.datasets[2].data = new Array(pricesA.length).fill(pb);
+  chartRSI.data.datasets[1].data = new Array(prices.length).fill(ob);
+  chartRSI.data.datasets[2].data = new Array(prices.length).fill(pb);
   chartRSI.update('none');
   const cur = rsi[rsi.length-1];
   const prev = rsi[rsi.length-2];
@@ -1166,18 +1480,27 @@ function updateRSI() {
     stateEl.innerHTML = '<span class="signal-badge" style="background:var(--surface2);color:var(--muted);border:1px solid var(--border)">中性</span>';
   }
 }
+function updateRSI() {
+  const period = +document.getElementById('rsi-period').value;
+  const ob = +document.getElementById('rsi-ob').value;
+  const pb = +document.getElementById('rsi-pb').value;
+  document.getElementById('rsi-period-val').textContent = period;
+  document.getElementById('rsi-ob-val').textContent = ob;
+  document.getElementById('rsi-pb-val').textContent = pb;
+  refreshRSI();
+}
 ['rsi-period','rsi-ob','rsi-pb'].forEach(id=>document.getElementById(id).addEventListener('input',updateRSI));
 
 // ════════════════════════════════════════
-// §4 Laplace
+// §4 Laplace  ← slope bug fixed: use normalised slope (divide by price level)
 // ════════════════════════════════════════
 let chartLaplace;
 function buildLaplaceChart() {
   const ctx = document.getElementById('chart-laplace').getContext('2d');
   chartLaplace = new Chart(ctx, {
     type:'line',
-    data:{labels: labels(pricesB.length), datasets:[
-      {label:'价格', data:pricesB, borderColor:'rgba(139,148,158,0.6)', borderWidth:1, pointRadius:0, tension:0.3},
+    data:{labels: [], datasets:[
+      {label:'价格', data:[], borderColor:'rgba(139,148,158,0.6)', borderWidth:1, pointRadius:0, tension:0.3},
       {label:'拉普拉斯滤波 L', data:[], borderColor:'#58a6ff', borderWidth:2.5, pointRadius:0, tension:0.3},
       {label:'买入信号', data:[], borderColor:'transparent', backgroundColor:'#3fb950',
        pointStyle:'circle', pointRadius:0, type:'scatter'},
@@ -1187,48 +1510,56 @@ function buildLaplaceChart() {
       scales:{x:{ticks:{maxTicksLimit:10}},y:{}}}
   });
 }
-function updateLaplace() {
+function refreshLaplace() {
+  const prices = globalPrices;
   const s = parseFloat(document.getElementById('lap-s').value);
   const minSlope = parseFloat(document.getElementById('lap-slope').value);
-  document.getElementById('lap-s-val').textContent = s.toFixed(2);
-  document.getElementById('lap-slope-val').textContent = minSlope.toFixed(3);
   const alpha = 1 - Math.exp(-s);
-  const L = laplaceFilter(pricesB, s);
-  // Signal dots
-  const signalData = pricesB.map((p, i) => {
+  const L = laplaceFilter(prices, s);
+  // FIX: normalise slope by price level → fractional daily change (≈0.001 meaningful)
+  const signalData = prices.map((p, i) => {
     if (i < 2) return null;
-    const slope = L[i] - L[i-1];
-    return (p > L[i] && slope > minSlope) ? { x: `D${i+1}`, y: p } : null;
+    const slopeNorm = (L[i] - L[i-1]) / L[i-1];
+    return (p > L[i] && slopeNorm > minSlope) ? { x: `D${i+1}`, y: p } : null;
   }).filter(Boolean);
+  chartLaplace.data.labels = labels(prices.length);
+  chartLaplace.data.datasets[0].data = prices;
   chartLaplace.data.datasets[1].data = L;
   chartLaplace.data.datasets[2].data = signalData;
   chartLaplace.data.datasets[2].pointRadius = signalData.length > 0 ? 5 : 0;
   chartLaplace.update('none');
-  const last = pricesB[pricesB.length-1];
+  const last = prices[prices.length-1];
   const l1 = L[L.length-1];
   const l2 = L[L.length-2];
-  const slope = l1 - l2;
-  const passed = last > l1 && slope > minSlope;
+  const slopeNorm = (l1 - l2) / l2;
+  const passed = last > l1 && slopeNorm > minSlope;
   document.getElementById('lap-alpha').textContent = alpha.toFixed(4);
   document.getElementById('lap-l1').textContent = l1.toFixed(2);
-  document.getElementById('lap-slope-v').textContent = slope.toFixed(4);
+  document.getElementById('lap-slope-v').textContent = slopeNorm.toFixed(5);
   const sigEl = document.getElementById('lap-signal');
   sigEl.innerHTML = passed
     ? '<span class="signal-badge signal-pass">✓ 通过</span>'
     : '<span class="signal-badge signal-fail">✗ 过滤</span>';
 }
+function updateLaplace() {
+  const s = parseFloat(document.getElementById('lap-s').value);
+  const minSlope = parseFloat(document.getElementById('lap-slope').value);
+  document.getElementById('lap-s-val').textContent = s.toFixed(2);
+  document.getElementById('lap-slope-val').textContent = minSlope.toFixed(3);
+  refreshLaplace();
+}
 ['lap-s','lap-slope'].forEach(id=>document.getElementById(id).addEventListener('input',updateLaplace));
 
 // ════════════════════════════════════════
-// §5 Gaussian
+// §5 Gaussian  ← slope bug fixed: normalise slope by price level
 // ════════════════════════════════════════
 let chartGaussPrice, chartGaussWeights;
 function buildGaussCharts() {
   const ctx1 = document.getElementById('chart-gauss-price').getContext('2d');
   chartGaussPrice = new Chart(ctx1, {
     type:'line',
-    data:{labels: labels(pricesB.length), datasets:[
-      {label:'价格', data:pricesB, borderColor:'rgba(139,148,158,0.5)', borderWidth:1, pointRadius:0, tension:0.3},
+    data:{labels: [], datasets:[
+      {label:'价格', data:[], borderColor:'rgba(139,148,158,0.5)', borderWidth:1, pointRadius:0, tension:0.3},
       {label:'高斯滤波 G', data:[], borderColor:'#bc8cff', borderWidth:2.5, pointRadius:0, tension:0.3},
       {label:'拉普拉斯 L', data:[], borderColor:'#58a6ff', borderWidth:1.5, pointRadius:0, borderDash:[4,3], tension:0.3},
     ]},
@@ -1249,38 +1580,46 @@ function buildGaussCharts() {
         y:{ticks:{callback:v=>v.toFixed(2)}}}}
   });
 }
-function updateGauss() {
+function refreshGauss() {
+  const prices = globalPrices;
   const sigma = parseFloat(document.getElementById('gauss-sigma').value);
   const minSlope = parseFloat(document.getElementById('gauss-slope').value);
-  document.getElementById('gauss-sigma-val').textContent = sigma.toFixed(1);
-  document.getElementById('gauss-slope-val').textContent = minSlope.toFixed(3);
-  const G = gaussianFilter(pricesB, sigma);
-  const L = laplaceFilter(pricesB, 0.05);
+  const G = gaussianFilter(prices, sigma);
+  const L = laplaceFilter(prices, 0.05);
+  chartGaussPrice.data.labels = labels(prices.length);
+  chartGaussPrice.data.datasets[0].data = prices;
   chartGaussPrice.data.datasets[1].data = G;
   chartGaussPrice.data.datasets[2].data = L;
   chartGaussPrice.update('none');
-  // Weight bars (20 points)
   const wts = [];
   for (let k=1; k<=20; k++) wts.push(Math.exp(-(k*k)/(2*sigma*sigma)));
   const wSum = wts.reduce((a,b)=>a+b,0);
   chartGaussWeights.data.datasets[0].data = wts.map(w=>w/wSum);
   chartGaussWeights.update('none');
-  const last = pricesB[pricesB.length-1];
+  const last = prices[prices.length-1];
   const g1 = G[G.length-1];
   const g2 = G[G.length-2];
-  const gSlope = g1 - g2;
+  // FIX: normalise slope
+  const gSlopeNorm = (g1 - g2) / g2;
   const l1 = L[L.length-1];
-  const passed = last > g1 && gSlope > minSlope;
+  const passed = last > g1 && gSlopeNorm > minSlope;
   document.getElementById('gauss-g1').textContent = g1.toFixed(2);
-  document.getElementById('gauss-slope-v').textContent = gSlope.toFixed(4);
+  document.getElementById('gauss-slope-v').textContent = gSlopeNorm.toFixed(5);
   const diff = ((g1 - l1)/l1*100);
   const vsEl = document.getElementById('gauss-vs-lap');
   vsEl.textContent = `G ${diff>0?'+':''}${diff.toFixed(2)}% vs L`;
-  vsEl.className = 'stat-value ' + (Math.abs(diff)<0.5?'':'') + (g1>l1?'red':'green');
+  vsEl.className = 'stat-value ' + (g1>l1?'red':'green');
   const sigEl = document.getElementById('gauss-signal');
   sigEl.innerHTML = passed
     ? '<span class="signal-badge signal-pass">✓ 通过</span>'
     : '<span class="signal-badge signal-fail">✗ 过滤</span>';
+}
+function updateGauss() {
+  const sigma = parseFloat(document.getElementById('gauss-sigma').value);
+  const minSlope = parseFloat(document.getElementById('gauss-slope').value);
+  document.getElementById('gauss-sigma-val').textContent = sigma.toFixed(1);
+  document.getElementById('gauss-slope-val').textContent = minSlope.toFixed(3);
+  refreshGauss();
 }
 ['gauss-sigma','gauss-slope'].forEach(id=>document.getElementById(id).addEventListener('input',updateGauss));
 
@@ -1292,7 +1631,7 @@ function buildWLSChart() {
   const ctx = document.getElementById('chart-wls').getContext('2d');
   chartWLS = new Chart(ctx, {
     type:'line',
-    data:{labels: labels(60), datasets:[
+    data:{labels: [], datasets:[
       {label:'ln(价格)', data:[], borderColor:'rgba(139,148,158,0.7)', borderWidth:1.5, pointRadius:2,
        pointBackgroundColor:'rgba(139,148,158,0.5)', tension:0},
       {label:'回归直线', data:[], borderColor:'#3fb950', borderWidth:2, pointRadius:0, borderDash:[5,3]},
@@ -1302,17 +1641,16 @@ function buildWLSChart() {
       scales:{x:{ticks:{maxTicksLimit:10}},y:{ticks:{callback:v=>v.toFixed(3)}}}}
   });
 }
-function updateWLS() {
+function refreshWLS() {
   const lb = +document.getElementById('wls-lb').value;
-  document.getElementById('wls-lb-val').textContent = lb;
-  const slice = pricesC.slice(Math.max(0, pricesC.length - lb - 1));
+  const prices = globalPrices;
+  const slice = prices.slice(Math.max(0, prices.length - lb - 1));
   const y = slice.map(Math.log);
   const x = Array.from({length:y.length},(_,i)=>i);
   const w = linspace(1, 2, y.length);
   const {slope, intercept} = weightedLinReg(x, y, w);
   const yHat = x.map(xi => slope*xi + intercept);
-  const lbLabels = labels(slice.length);
-  chartWLS.data.labels = lbLabels;
+  chartWLS.data.labels = labels(slice.length);
   chartWLS.data.datasets[0].data = y;
   chartWLS.data.datasets[1].data = yHat;
   chartWLS.update('none');
@@ -1320,10 +1658,14 @@ function updateWLS() {
   document.getElementById('wls-intercept').textContent = intercept.toFixed(4);
   document.getElementById('wls-n').textContent = slice.length;
 }
+function updateWLS() {
+  document.getElementById('wls-lb-val').textContent = document.getElementById('wls-lb').value;
+  refreshWLS();
+}
 document.getElementById('wls-lb').addEventListener('input', updateWLS);
 
 // ════════════════════════════════════════
-// §7 R²
+// §7 R²  (standalone — uses noise/trend sliders, not globalPrices)
 // ════════════════════════════════════════
 let chartR2;
 function buildR2Chart() {
@@ -1345,7 +1687,6 @@ function updateR2() {
   const trend = parseFloat(document.getElementById('r2-trend').value)/100;
   document.getElementById('r2-noise-val').textContent = (noise*100).toFixed(1)+'%';
   document.getElementById('r2-trend-val').textContent = (trend*100).toFixed(2)+'%';
-  // Generate noisy price series
   const rng = mulberry32(7);
   const p = [100];
   for(let i=1;i<40;i++) p.push(p[i-1]*(1+trend+(rng()*2-1)*noise));
@@ -1388,12 +1729,11 @@ function buildAnnChart() {
       scales:{x:{ticks:{maxTicksLimit:10}},y:{}}}
   });
 }
-function updateAnn() {
+function refreshAnn() {
   const lb  = +document.getElementById('ann-lb').value;
   const slb = +document.getElementById('ann-slb').value;
-  document.getElementById('ann-lb-val').textContent = lb;
-  document.getElementById('ann-slb-val').textContent = slb;
-  const slice = pricesC.slice(Math.max(0, pricesC.length - lb - 1));
+  const prices = globalPrices;
+  const slice = prices.slice(Math.max(0, prices.length - lb - 1));
   const y = slice.map(Math.log);
   const x = Array.from({length:y.length},(_,i)=>i);
   const w = linspace(1,2,y.length);
@@ -1401,8 +1741,7 @@ function updateAnn() {
   const r2 = calcR2(x,y,w,slope,intercept);
   const yHat = x.map(xi=>slope*xi+intercept);
   const annLong = Math.exp(slope*250)-1;
-  // Short
-  const shortSlice = pricesC.slice(Math.max(0, pricesC.length - slb - 1));
+  const shortSlice = prices.slice(Math.max(0, prices.length - slb - 1));
   const sr = shortSlice[shortSlice.length-1]/shortSlice[0]-1;
   const annShort = Math.pow(1+sr, 250/slb)-1;
   chartAnn.data.labels = labels(slice.length);
@@ -1417,10 +1756,15 @@ function updateAnn() {
   shortEl.className = 'stat-value ' + (annShort>0?'yellow':'red');
   document.getElementById('ann-r2').textContent = r2.toFixed(4);
 }
+function updateAnn() {
+  document.getElementById('ann-lb-val').textContent = document.getElementById('ann-lb').value;
+  document.getElementById('ann-slb-val').textContent = document.getElementById('ann-slb').value;
+  refreshAnn();
+}
 ['ann-lb','ann-slb'].forEach(id=>document.getElementById(id).addEventListener('input',updateAnn));
 
 // ════════════════════════════════════════
-// §9 Score
+// §9 Score  (static ETF comparison — not linked to global prices)
 // ════════════════════════════════════════
 let chartScore;
 const etfData = [
@@ -1432,7 +1776,6 @@ const etfData = [
 ];
 function buildScoreChart() {
   const ctx = document.getElementById('chart-score').getContext('2d');
-  const scores = etfData.map(e=>e.ann*e.r2);
   const sorted = [...etfData].sort((a,b)=>b.ann*b.r2 - a.ann*a.r2);
   chartScore = new Chart(ctx, {
     type:'bar',
@@ -1474,8 +1817,8 @@ function buildDDChart() {
   const ctx = document.getElementById('chart-dd').getContext('2d');
   chartDD = new Chart(ctx, {
     type:'line',
-    data:{labels: labels(pricesD.length), datasets:[
-      {label:'价格', data:pricesD, borderColor:'#58a6ff', borderWidth:1.5, pointRadius:0, tension:0.3},
+    data:{labels: [], datasets:[
+      {label:'价格', data:[], borderColor:'#58a6ff', borderWidth:1.5, pointRadius:0, tension:0.3},
       {label:'近N日最高', data:[], borderColor:'#f85149', borderWidth:1.5, borderDash:[4,3], pointRadius:0},
       {label:'盈利保护线', data:[], borderColor:'rgba(248,81,73,0.3)', borderWidth:1, borderDash:[2,4], pointRadius:0,
        fill:{target:0, above:'rgba(248,81,73,0.05)', below:'transparent'}},
@@ -1485,20 +1828,21 @@ function buildDDChart() {
       scales:{x:{ticks:{maxTicksLimit:10}},y:{}}}
   });
 }
-function updateDD() {
+function refreshDD() {
+  const prices = globalPrices;
   const thresh = +document.getElementById('dd-thresh').value/100;
   const N = +document.getElementById('dd-n').value;
-  document.getElementById('dd-thresh-val').textContent = (+document.getElementById('dd-thresh').value)+'%';
-  document.getElementById('dd-n-val').textContent = N;
-  const rollingMax = pricesD.map((_,i)=>{
-    const slice = pricesD.slice(Math.max(0,i-N+1), i+1);
+  const rollingMax = prices.map((_,i)=>{
+    const slice = prices.slice(Math.max(0,i-N+1), i+1);
     return Math.max(...slice);
   });
   const protLine = rollingMax.map(h=>h*(1-thresh));
+  chartDD.data.labels = labels(prices.length);
+  chartDD.data.datasets[0].data = prices;
   chartDD.data.datasets[1].data = rollingMax;
   chartDD.data.datasets[2].data = protLine;
   chartDD.update('none');
-  const last = pricesD[pricesD.length-1];
+  const last = prices[prices.length-1];
   const maxH = rollingMax[rollingMax.length-1];
   const dd = (maxH - last)/maxH;
   document.getElementById('dd-high').textContent = maxH.toFixed(2);
@@ -1510,10 +1854,15 @@ function updateDD() {
     ? '<span class="signal-badge signal-pass">🛡️ 触发保护</span>'
     : '<span class="signal-badge signal-fail">○ 安全</span>';
 }
+function updateDD() {
+  document.getElementById('dd-thresh-val').textContent = document.getElementById('dd-thresh').value+'%';
+  document.getElementById('dd-n-val').textContent = document.getElementById('dd-n').value;
+  refreshDD();
+}
 ['dd-thresh','dd-n'].forEach(id=>document.getElementById(id).addEventListener('input',updateDD));
 
 // ════════════════════════════════════════
-// §11 Premium
+// §11 Premium  (static — not linked to global prices)
 // ════════════════════════════════════════
 let chartPrem;
 const premiumData = [
@@ -1563,22 +1912,42 @@ document.getElementById('prem-thresh').addEventListener('input', updatePrem);
 // ════════════════════════════════════════
 // Init all
 // ════════════════════════════════════════
-buildMAChart();       updateMA();
-buildBiasCharts();    updateBias();
-buildRSICharts();     updateRSI();
-buildLaplaceChart();  updateLaplace();
-buildGaussCharts();   updateGauss();
-buildWLSChart();      updateWLS();
-buildR2Chart();       updateR2();
-buildAnnChart();      updateAnn();
-buildScoreChart();    updateScoreCalc();
-buildDDChart();       updateDD();
-buildPremChart();     updatePrem();
+// 1. Build editor UI + initial global prices
+renderSegList();
+buildEditorChart();
+buildGlobalPrices();
+updateEditorChart();
+
+// 2. Build all section charts
+buildMAChart();
+buildBiasCharts();
+buildRSICharts();
+buildLaplaceChart();
+buildGaussCharts();
+buildWLSChart();
+buildR2Chart();
+buildAnnChart();
+buildScoreChart();
+buildDDChart();
+buildPremChart();
+
+// 3. Initial population using global prices
+updateMA();
+updateBias();
+updateRSI();
+updateLaplace();
+updateGauss();
+updateWLS();
+updateR2();
+updateAnn();
+updateScoreCalc();
+updateDD();
+updatePrem();
 
 // ════════════════════════════════════════
 // Scrollspy
 // ════════════════════════════════════════
-const sections = document.querySelectorAll('.section, .hero');
+const sections = document.querySelectorAll('.section, .hero, #price-editor');
 const navLinks = document.querySelectorAll('#sidebar nav a');
 function onScroll() {
   let current = '';
